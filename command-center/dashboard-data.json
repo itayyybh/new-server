@@ -9,13 +9,13 @@
         "6 GitHub repositories (tavo, codebase-rag, gta-cheatsheet, keyboard-sounds, trading-dashboard, new-server) incl. all branches and commit history; gta-cheatsheet tests executed",
         "7 Claude Docs (roadmap, Tavo deploy check, GTA RAG architecture, Python Refresher Weeks 1–2, Seating evaluation EN/HE)",
         "6 earlier Claude Code sessions (titles + latest transcript pages)",
-        "1 targeted Gmail search (gta.wiki permission)"
+        "1 targeted Gmail search (gta.wiki permission)",
+        "claude.ai data export: 15 work-related conversations read (8 personal ones skipped unread) and 4 Claude Projects"
       ],
       "notAccessed": [
-        "claude.ai chat conversations outside Claude Code sessions (no tool access)",
         "Private repo itayyybh/alarm-clock-automation (not returned by repo listing)",
         "Local code for Attune (on your Mac, never pushed)",
-        "Your claude.ai data export (requested — not yet received)",
+        "Export summaries of the two longest chats are truncated by the export itself (your own messages were read in full)",
         "Live Supabase data, Vercel deployments, and test runs (tests were not executed)"
       ]
     },
@@ -66,6 +66,7 @@
         "Rules-based scorer kept; an LLM scorer was deliberately NOT built after the Phase 1 evaluation (the data cannot support the comparison).",
         "Store facts (seated_at, cleared_at), derive durations in a view — replaced a client-computed actual_minutes.",
         "Intent router fails safe to \"booking\" so a misclassification can never be worse than before.",
+        "Repositioned as a learning/portfolio asset rather than a product you are trying to grow (your words, 2026-09-19).",
         "LLM only extracts fields; replies are deterministic templates (prevents invented availability)."
       ],
       "featuresVerified": [
@@ -84,7 +85,9 @@
         "Host-configurable table priority (tie-break).",
         "Flag test activity at the source.",
         "WhatsApp: cancel/change booking branch, pg_cron conversation reaper, extraction decision logging.",
-        "Roadmap Phase 12 \"Future\": analytics, heat maps, POS integration, multi-floor."
+        "Roadmap Phase 12 \"Future\": analytics, heat maps, POS integration, multi-floor.",
+        "Idea (not started): a \"dead hours\" analytics view of uncommitted capacity by hour — the surviving part of the off-peak promotion idea.",
+        "Ideas from 2026-08-19 (superseded by the Phase 1 decision for now): claudeScorer, weekly outcome analyzer, no-show/duration prediction."
       ],
       "issues": [
         {
@@ -124,10 +127,10 @@
           ]
         },
         {
-          "type": "question",
-          "text": "Is the WhatsApp channel connected to a real Meta number in production? Setup doc exists; live status not evidenced.",
+          "type": "blocker",
+          "text": "Real Meta WhatsApp connection is on hold: Meta's App Dashboard showed an empty \"From\" phone-number list (a platform bug across browsers/profiles). You chose mock mode instead of filing a support ticket.",
           "evidence": [
-            "E-tavo-wa-setup"
+            "E-proj-learnlog"
           ]
         }
       ],
@@ -188,8 +191,7 @@
       "nextAction": "Before Friday: on a quiet afternoon open the deployed app → Settings → Floor, seat and clear one party, then run block D of analysis/check_shift.sql and confirm have_seated_at = 1.",
       "unknowns": [
         "Whether 0022–0024 write paths work in the deployed build (not yet checked).",
-        "Whether vitest still passes after the rebase onto PR #52 (could not be run in the sandbox).",
-        "Production status of the Meta WhatsApp number."
+        "Whether vitest still passes after the rebase onto PR #52 (could not be run in the sandbox)."
       ],
       "evidence": [
         "E-repo-tavo",
@@ -198,7 +200,10 @@
         "E-tavo-eval",
         "E-tavo-known",
         "E-tavo-8746ce7",
-        "E-art-deploy"
+        "E-art-deploy",
+        "E-chat-roadmap",
+        "E-chat-learnpath",
+        "E-proj-learnlog"
       ]
     },
     {
@@ -229,7 +234,8 @@
       "decisions": [
         "Exclude agent-instruction files (.claude/skills, CLAUDE.md) from the corpus: +14 points recall@1, zero losses, p = 0.002.",
         "Do NOT adopt hybrid retrieval end to end: retrieval improved, answers did not, groundedness moved against it on both halves.",
-        "Learning project, not a product — no chat box or server (until refresher Task 4)."
+        "Learning project, not a product — no chat box or server (until refresher Task 4).",
+        "Code written by Claude; you designed questions, wrote reference answers, audited the judge and ran every evaluation on your machine (chat transcript)."
       ],
       "featuresVerified": [
         "BM25 baseline with a 108-question golden set (99 scored), dev/test split.",
@@ -346,7 +352,8 @@
         "E-rag-findings",
         "E-rag-refresher",
         "E-rag-68eb58a",
-        "E-rag-concepts-he"
+        "E-rag-concepts-he",
+        "E-chat-roadmap"
       ]
     },
     {
@@ -378,14 +385,15 @@
         "Build on GTA V first so every part can be measured before GTA 6 data exists.",
         "Golden set before retrieval code; never cut evaluation if weeks slip.",
         "Data source: gta.wiki (CC BY-NC-SA, scripted access needs consent), not Fandom (bans automated copying).",
-        "Language: Python. The assistant may hint, review and run tests, but never writes cheatsheet.py (CLAUDE.md).",
+        "Language: Python. The assistant may hint, review and run tests, but never writes cheatsheet.py (CLAUDE.md). Claude writes the pytest specs.",
+        "RAG, not fine-tuning: your first idea was to train a model before launch; GTA 6 facts will only exist after it.",
         "Fix cleaning test-first: add test pages with ===/==== headings and multi-line templates before changing split_sections/clean_text."
       ],
       "featuresVerified": [
         "Week 1 complete: clean_text, split_sections, make_chunks, save/load_chunks, parse_api_response, keyword_search, recall_at_k — 21/21 tests pass (re-run 2026-10-15).",
         "Week 2 Days 1–4 complete: fetch_page, list_category (pagination), parse_infobox / remove_infobox / infobox_to_chunk, ingest with cache — 15/15 of their tests pass.",
         "First real ingestion run: 21 hand-saved gta.wiki pages → 791 chunks in chunks.json (2026-10-14).",
-        "Data-quality review of the real run written up in cleaning_notes.md (problems A–H, counts verified against chunks.json)."
+        "Data-quality review of the real run in cleaning_notes.md (problems A–H) — written by Claude at your request; counts verified against chunks.json."
       ],
       "featuresInProgress": [
         "Week 2 Day 5: chunk_stats — still a placeholder (0/2 tests)."
@@ -462,6 +470,8 @@
       ],
       "concepts": [
         "c-rag",
+        "c-rag-vs-finetune",
+        "c-tracebacks",
         "c-etl",
         "c-regex",
         "c-wiki-markup",
@@ -531,6 +541,7 @@
         "E-gta-tests",
         "E-gta-notes",
         "E-gta-claude",
+        "E-chat-gta",
         "E-art-gta",
         "E-art-py1",
         "E-art-py2",
@@ -791,13 +802,14 @@
         "Next.js",
         "Node.js",
         "Library.xml parsing",
-        "LLM API (provider not recorded)",
+        "LLM API (plan: Anthropic SDK / Claude; provider in the final code not verified)",
         "AppleScript / osascript → Music.app"
       ],
       "architecture": [
         "Reads the local iTunes/Music Library.xml export, classifies moods with an LLM, and drives Music.app through AppleScript — everything is local to the Mac."
       ],
       "decisions": [
+        "Four-phase learning plan (2026-09-01): foundation → full library → context-aware playlists → optional Spotify/embeddings.",
         "SaaS assessment (2026-09-01): do not rebuild as SaaS before cheap demand validation; a SaaS would need MusicKit/Spotify APIs and OAuth."
       ],
       "featuresVerified": [
@@ -819,6 +831,7 @@
       ],
       "concepts": [
         "c-llm-classification",
+        "c-llm-basics",
         "c-applescript",
         "c-api-cost"
       ],
@@ -832,7 +845,40 @@
         "LLM provider and cost per library are not recorded."
       ],
       "evidence": [
-        "E-sess-attune"
+        "E-sess-attune",
+        "E-chat-genai",
+        "E-proj-itunes"
+      ]
+    },
+    {
+      "id": "offpeak-idea",
+      "name": "Off-peak QR promotion (idea)",
+      "tagline": "Free appetizer for diner contact details, then fill \"dead hours\" — evaluated, not built",
+      "kind": "Business idea (evaluated)",
+      "status": "abandoned",
+      "purpose": "Sell restaurants a QR/barcode mechanic that captures diner contacts and drives traffic into low-occupancy windows.",
+      "problem": "Unprofitable empty capacity at off-peak hours.",
+      "users": "Restaurant owners.",
+      "stack": [],
+      "architecture": [],
+      "decisions": [
+        "Adversarial reality check scored it 3.9/10: do not build standalone (commoditised QR capture, incumbents bundle it, EatClub owns off-peak demand, Israeli Spam Law §30a + Privacy Amendment 13).",
+        "Surviving wedge: an analytics-only \"dead hours\" view inside Tavo, using its live floor data."
+      ],
+      "featuresVerified": [],
+      "featuresInProgress": [],
+      "featuresPlanned": [],
+      "issues": [],
+      "pipelines": [],
+      "concepts": [],
+      "links": [],
+      "started": "2026-09-05",
+      "lastActivity": "2026-09-05",
+      "lastVerified": "2026-10-15",
+      "nextAction": "None. If revisited: compute the dead-window distribution from Cafe Jolie floor data and ask the owner what an extra cover in those hours is worth.",
+      "unknowns": [],
+      "evidence": [
+        "E-chat-barcode"
       ]
     },
     {
@@ -1124,7 +1170,7 @@
         {
           "id": "async",
           "name": "Concurrent eval runner (asyncio)",
-          "status": "implemented",
+          "status": "verified",
           "description": "call_tool made async (asyncio.to_thread around urllib); questions fanned out with gather + Semaphore.",
           "tools": [
             "asyncio",
@@ -1138,12 +1184,13 @@
             "generate",
             "judge"
           ],
-          "validation": "Not evidenced — no post-change run committed.",
+          "validation": "You ran the full eval after the change and it \"finished very quickly\" (chat 2026-10-01). Not checked: that results match the cached run.",
           "issues": [],
           "evidence": [
-            "E-rag-68eb58a"
+            "E-rag-68eb58a",
+            "E-chat-roadmap"
           ],
-          "next": "Re-run `rag_eval.py --prompt v2 --split dev` (cache makes it free) and diff against v2_dev.json; then swap urllib for httpx.AsyncClient."
+          "next": "Diff a fresh run against eval/results/v2_dev.json; then swap urllib for httpx.AsyncClient."
         },
         {
           "id": "package",
@@ -1678,12 +1725,14 @@
           "concepts": [
             "c-structured-output",
             "c-templates-vs-generation",
-            "c-guardrails"
+            "c-guardrails",
+            "c-system-prompt",
+            "c-context-window"
           ],
           "dependsOn": [
             "intent"
           ],
-          "validation": "scripts/eval-extraction.ts replays scripted conversations; results not recorded.",
+          "validation": "scripts/eval-extraction.ts replays 9 scripted conversations (incl. Hebrew, spelled-out numbers); pass results not recorded.",
           "issues": [],
           "evidence": [
             "E-tavo-extract",
@@ -1779,19 +1828,22 @@
         {
           "id": "live",
           "name": "End-to-end test on a real WhatsApp number",
-          "status": "investigate",
-          "description": "Build-order step 8 of the plan. No evidence found either way.",
+          "status": "blocked",
+          "description": "Build-order step 8 of the plan. On hold: Meta's App Dashboard showed an empty \"From\" phone-number list, so recipients could not be allow-listed. Work continued in mock mode.",
           "tools": [],
           "concepts": [],
           "dependsOn": [
             "confirm"
           ],
           "validation": "",
-          "issues": [],
-          "evidence": [
-            "E-tavo-wa-plan"
+          "issues": [
+            "Platform-side bug; a Meta support ticket was not filed."
           ],
-          "next": ""
+          "evidence": [
+            "E-tavo-wa-plan",
+            "E-proj-learnlog"
+          ],
+          "next": "Decide whether to file the Meta support ticket."
         }
       ]
     },
@@ -1842,7 +1894,7 @@
           "id": "handsave",
           "name": "Hand-saved pages → cache (raw_to_cache)",
           "status": "verified",
-          "description": "Raw wikitext saved from the browser into raw/, converted to {title, url, text} page dicts in cache/.",
+          "description": "Raw wikitext saved from the browser into raw/ (Claude suggested the 20 extra pages), converted to {title, url, text} page dicts in cache/ by raw_to_cache, which you wrote.",
           "tools": [
             "pathlib",
             "json"
@@ -2658,7 +2710,8 @@
       "why": "Every Python job codebase uses these; reading them fluently is the entry ticket.",
       "evidence": [
         "E-rag-refresher",
-        "E-gta-repo"
+        "E-gta-repo",
+        "E-chat-roadmap"
       ],
       "evidenceNote": "codebase-rag uses all of them, but the refresher notes that code was written by Claude.",
       "example": "cheatsheet.py: pathlib.Path and /, f-strings, enumerate, {**page, \"text\": clean}.",
@@ -2683,7 +2736,8 @@
       "why": "Reproducible setups; every Python project starts here.",
       "evidence": [
         "E-art-py1",
-        "E-gta-repo"
+        "E-gta-repo",
+        "E-chat-gta"
       ],
       "evidenceNote": "",
       "example": ".venv/ in the GTA repo (git-ignored).",
@@ -2782,9 +2836,10 @@
       "why": "LLM apps are I/O-bound: concurrency turns a 6-minute eval into seconds.",
       "evidence": [
         "E-rag-68eb58a",
-        "E-rag-refresher"
+        "E-rag-refresher",
+        "E-chat-roadmap"
       ],
-      "evidenceNote": "Commit 68eb58a has no AI co-author line: you discovered that urlopen and time.sleep blocked the loop and fixed the whole call chain.",
+      "evidenceNote": "Commit 68eb58a has no AI co-author. In chat you asked whether urlopen could become async, tried httpx.AsyncClient (import failed), then used asyncio.to_thread; the eval then \"finished very quickly\" (2026-10-01).",
       "example": "call_tool → asyncio.to_thread(urlopen); asyncio.sleep for backoff.",
       "related": [
         "c-semaphore",
@@ -2829,14 +2884,15 @@
       "id": "c-httpx",
       "name": "httpx (async HTTP client)",
       "category": "Python",
-      "status": "encountered",
+      "status": "learning",
       "level": 2,
       "explanation": "A modern HTTP client with real async support and a test client for web apps.",
       "why": "Standard in FastAPI services and LLM backends.",
       "evidence": [
-        "E-rag-refresher"
+        "E-rag-refresher",
+        "E-chat-roadmap"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You tried httpx.AsyncClient on 2026-10-01; it was not installed/imported, so you fell back to asyncio.to_thread.",
       "example": "",
       "related": [
         "c-asyncio",
@@ -2891,7 +2947,8 @@
       "evidence": [
         "E-tavo-tdd",
         "E-art-py1",
-        "E-gta-tests"
+        "E-gta-tests",
+        "E-chat-gta"
       ],
       "evidenceNote": "",
       "example": "Tavo end-of-day reset: RED (2 failed) → GREEN (8 passed) with vitest.",
@@ -2960,15 +3017,16 @@
       "id": "c-fastapi",
       "name": "FastAPI + Pydantic",
       "category": "Backend",
-      "status": "encountered",
+      "status": "learning",
       "level": 2,
       "explanation": "A Python web framework with async handlers; Pydantic models validate request/response data.",
       "why": "\"Python backend + LLM orchestration\" is the job description for the target roles.",
       "evidence": [
         "E-rag-refresher",
-        "E-art-roadmap"
+        "E-art-roadmap",
+        "E-chat-roadmap"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You asked where to learn FastAPI before writing it and watched a tutorial video with Claude (2026-10-01). No FastAPI code yet.",
       "example": "",
       "related": [
         "c-httpx",
@@ -3218,7 +3276,8 @@
       "why": "Your strongest shipped skill; \"full-stack → GenAI apps\" is your main route.",
       "evidence": [
         "E-repo-tavo",
-        "E-repo-trade"
+        "E-repo-trade",
+        "E-chat-roadmap"
       ],
       "evidenceNote": "",
       "example": "Tavo ~25.6k lines of TS/TSX.",
@@ -3226,7 +3285,7 @@
         "c-state-management"
       ],
       "prereqs": [],
-      "gaps": "The refresher notes authoring fluency lags system-design ability (code largely AI-generated).",
+      "gaps": "You said on 2026-09-30: \"I don't really know TypeScript\" — Tavo's TypeScript was AI-generated against your design decisions.",
       "next": "",
       "authorship": "ai-assisted",
       "revise": false,
@@ -3720,9 +3779,10 @@
       "evidence": [
         "E-tavo-eval",
         "E-art-py2",
-        "E-gta-notes"
+        "E-gta-notes",
+        "E-chat-gta"
       ],
-      "evidenceNote": "cleaning_notes.md: your own audit of 791 real chunks with counts per problem.",
+      "evidenceNote": "cleaning_notes.md was written by Claude at your request after you ran the pipeline and pasted sample chunks (chat 2026-10-14); the Tavo data-quality checks were also Claude-led.",
       "example": "Only 11 of 64 recorded durations were plausible; test clicks found by timestamp clustering.",
       "related": [
         "c-store-facts",
@@ -3889,7 +3949,9 @@
         "E-rag-findings",
         "E-tavo-faq",
         "E-tavo-ragprac",
-        "E-art-gta"
+        "E-art-gta",
+        "E-chat-learnpath",
+        "E-chat-ragllm"
       ],
       "evidenceNote": "",
       "example": "codebase-rag end to end; Tavo FAQ branch puts all facts in the prompt because the corpus is tiny.",
@@ -3945,7 +4007,8 @@
       "why": "Strong, free baseline; half of every hybrid system.",
       "evidence": [
         "E-rag-findings",
-        "E-rag-concepts-he"
+        "E-rag-concepts-he",
+        "E-chat-roadmap"
       ],
       "evidenceNote": "",
       "example": "lexical.py (~20 lines of scoring); wins on exact identifiers like merge.proximityWeight.",
@@ -3957,7 +4020,7 @@
       "prereqs": [
         "c-lexical-search"
       ],
-      "gaps": "Derive the formula by hand.",
+      "gaps": "You asked whether hybrid made BM25 obsolete (2026-09-25). It does not: hybrid IS BM25 + dense, and BM25 wins on exact identifiers. Derive the scoring formula by hand.",
       "next": "Write a pytest for idf on a 3-document corpus (Task 2).",
       "authorship": "ai-assisted",
       "revise": false,
@@ -4046,7 +4109,8 @@
       "why": "Catches paraphrases keyword search misses.",
       "evidence": [
         "E-rag-findings",
-        "E-tavo-ragprac"
+        "E-tavo-ragprac",
+        "E-proj-learnlog"
       ],
       "evidenceNote": "",
       "example": "bge-small-en-v1.5 in codebase-rag; multilingual MiniLM via @xenova/transformers in Tavo rag-practice.mjs.",
@@ -4250,7 +4314,8 @@
       "evidence": [
         "E-tavo-intent",
         "E-tavo-extract",
-        "E-rag-readme"
+        "E-rag-readme",
+        "E-proj-learnlog"
       ],
       "evidenceNote": "",
       "example": "_intent.ts limits the label to booking | question.",
@@ -4394,7 +4459,9 @@
       "explanation": "Use a model to label many items (mood per song).",
       "why": "Cheap labelling — but needs measured accuracy and cost control.",
       "evidence": [
-        "E-sess-attune"
+        "E-sess-attune",
+        "E-chat-genai",
+        "E-proj-itunes"
       ],
       "evidenceNote": "",
       "example": "Attune labelled ~2,750 songs by mood.",
@@ -4469,7 +4536,8 @@
       "why": "The most expensive RAG failure is confident invention.",
       "evidence": [
         "E-art-gta",
-        "E-rag-findings"
+        "E-rag-findings",
+        "E-chat-ragllm"
       ],
       "evidenceNote": "",
       "example": "auth-001: answered from a PERMISSIONS constant instead of the owner checks.",
@@ -4491,9 +4559,10 @@
       "status": "encountered",
       "level": 3,
       "explanation": "A model repeatedly picks a tool, observes the result and decides the next step until done.",
-      "why": "Named in nearly every target posting.",
+      "why": "Agent orchestration displaced RAG as the headline skill in September 2026 Israeli postings (job-market research, 79 postings).",
       "evidence": [
-        "E-art-roadmap"
+        "E-art-roadmap",
+        "E-chat-jobmarket"
       ],
       "evidenceNote": "",
       "example": "",
@@ -4522,9 +4591,10 @@
       "why": "Explicitly named by Israeli hiring managers as a screening line.",
       "evidence": [
         "E-art-roadmap",
-        "E-sess-ramp"
+        "E-sess-ramp",
+        "E-chat-trademcp"
       ],
-      "evidenceNote": "You have used an MCP server (Supabase MCP) as a consumer; you have not written one.",
+      "evidenceNote": "You use MCP servers as a consumer (Supabase MCP; tried a GitHub MCP connector for the trading dashboard and hit an OAuth dynamic-client-registration error, 2026-07-14). You have not written a server.",
       "example": "",
       "related": [
         "c-agents"
@@ -4594,9 +4664,10 @@
       "why": "Without it there is no project, only a gut feeling.",
       "evidence": [
         "E-rag-evalreadme",
-        "E-art-py2"
+        "E-art-py2",
+        "E-chat-roadmap"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You wrote/corrected reference answers yourself (e.g. seating-003) and asked how golden questions are written in real companies.",
       "example": "108 questions with kinds lookup / cross_file / conceptual / negative.",
       "related": [
         "c-dev-test-split",
@@ -4644,7 +4715,8 @@
       "evidence": [
         "E-rag-findings",
         "E-art-py1",
-        "E-gta-repo"
+        "E-gta-repo",
+        "E-chat-roadmap"
       ],
       "evidenceNote": "You implemented recall_at_k yourself in cheatsheet.py (Week 1); codebase-rag's version was AI-assisted.",
       "example": "seating-006: correct file at rank 6 → recall@5 = 0, recall@10 = 1.",
@@ -4740,7 +4812,8 @@
       "explanation": "Tune on dev; confirm a decision once on test. Peeking repeatedly turns test into a second dev set.",
       "why": "Twice in codebase-rag the held-out half overturned a dev-half conclusion.",
       "evidence": [
-        "E-rag-findings"
+        "E-rag-findings",
+        "E-chat-roadmap"
       ],
       "evidenceNote": "",
       "example": "Dense retrieval: +14.3% recall@5 on dev, −6.0% on test — the held-out half caught it.",
@@ -4791,9 +4864,10 @@
       "explanation": "Read a sample of the judge's verdicts by hand before trusting its numbers — including cases it passed.",
       "why": "The audit caught a rubric bug that punished honest refusals.",
       "evidence": [
-        "E-rag-judge-audit"
+        "E-rag-judge-audit",
+        "E-chat-roadmap"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You did the 6-case hand audit yourself (one disagreement), which surfaced the refusal-grading bug (chat 2026-09-25).",
       "example": "Audit of 6 judge cases found the rubric graded honest refusals as wrong → added a \"declined\" verdict.",
       "related": [
         "c-llm-judge",
@@ -5100,10 +5174,11 @@
       "status": "encountered",
       "level": 3,
       "explanation": "Being able to see after the fact why a system did what it did: traces of prompts, retrieved chunks, outputs, latency, cost.",
-      "why": "Strongly recommended for AI roles (LangSmith / OpenTelemetry).",
+      "why": "The 79-posting job-market research found Israeli AI roles frame evaluation as diagnosing failures from execution traces (Langfuse/LangSmith), not as metrics on a static set.",
       "evidence": [
         "E-art-roadmap",
-        "E-art-gta"
+        "E-art-gta",
+        "E-chat-jobmarket"
       ],
       "evidenceNote": "",
       "example": "",
@@ -5112,7 +5187,7 @@
       ],
       "prereqs": [],
       "gaps": "No tracing tool used yet.",
-      "next": "",
+      "next": "Instrument one Tavo agent/LLM call with Langfuse; Tavo's seating decision logs already are traces.",
       "authorship": "plan-only",
       "revise": false,
       "isNew": true
@@ -5126,7 +5201,8 @@
       "explanation": "Run the golden set in CI and fail the build if quality drops below a threshold.",
       "why": "\"The single highest-leverage gap\" in the roadmap.",
       "evidence": [
-        "E-art-roadmap"
+        "E-art-roadmap",
+        "E-chat-jobmarket"
       ],
       "evidenceNote": "",
       "example": "",
@@ -5203,9 +5279,10 @@
       "why": "Real ingestion is mostly about the messy input format, not the algorithm; 49% of your chunks got bad section names from one heading regex.",
       "evidence": [
         "E-gta-notes",
-        "E-gta-repo"
+        "E-gta-repo",
+        "E-chat-gta"
       ],
-      "evidenceNote": "You found and counted these problems yourself on 791 real chunks.",
+      "evidenceNote": "The parsing code (with the heading bug) is yours; the problems were found and counted by Claude in cleaning_notes.md.",
       "example": "==(.*?)== reads \"===Design===\" as \"=Design\" and \"====Vehicle====\" as an empty name.",
       "related": [
         "c-regex",
@@ -5217,7 +5294,7 @@
       ],
       "gaps": "Multi-line templates, nested templates, link rewriting, heading levels.",
       "next": "Write failing tests with ===/==== headings and a multi-line template, then fix split_sections and clean_text (cleaning A, then D, then C).",
-      "authorship": "self-written",
+      "authorship": "mixed",
       "revise": false,
       "isNew": false
     },
@@ -5275,17 +5352,143 @@
       "id": "c-counter",
       "name": "Counting with collections.Counter",
       "category": "Python",
-      "status": "practiced",
+      "status": "encountered",
       "level": 1,
       "explanation": "Counter(items).most_common(n) tallies values and returns the most frequent first.",
       "why": "Fastest way to see what your data looks like before fixing it.",
       "evidence": [
-        "E-gta-notes"
+        "E-gta-notes",
+        "E-chat-gta"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "Claude ran the Counter over your chunks for cleaning_notes.md; you have not used it yourself yet.",
       "example": "Counter of chunk section names → 166 chunks with an empty section.",
       "related": [
         "c-data-quality"
+      ],
+      "prereqs": [],
+      "gaps": "",
+      "next": "Re-run the section Counter yourself after the heading fix and compare with cleaning_notes.md.",
+      "authorship": "ai-assisted",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-llm-basics",
+      "name": "How LLMs work (training data, cutoff, next-token prediction)",
+      "category": "LLM fundamentals",
+      "status": "learning",
+      "level": 1,
+      "explanation": "An LLM predicts the next token from patterns learned in training; it knows nothing after its training cutoff and nothing private, and it can state wrong things fluently.",
+      "why": "Every design choice — RAG, grounding, evaluation — exists to work around these limits.",
+      "evidence": [
+        "E-chat-ragllm",
+        "E-chat-genai"
+      ],
+      "evidenceNote": "You asked \"Explain RAG and LLM\" (2026-08-23) and \"Can I learn LLM through this?\" (2026-09-01).",
+      "example": "",
+      "related": [
+        "c-rag",
+        "c-hallucination",
+        "c-context-window"
+      ],
+      "prereqs": [],
+      "gaps": "Internals (transformers, attention) deliberately skipped — your roadmap says they are not needed for the target roles.",
+      "next": "Explain in two minutes, without notes, why your WhatsApp bot extracts fields instead of writing replies.",
+      "authorship": "plan-only",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-system-prompt",
+      "name": "System prompt vs user prompt",
+      "category": "Prompting",
+      "status": "applied",
+      "level": 1,
+      "explanation": "The system prompt holds fixed rules and role; the user prompt carries the changing data for this call.",
+      "why": "Separating them keeps rules stable while inputs vary, and makes prompts testable.",
+      "evidence": [
+        "E-proj-learnlog",
+        "E-tavo-extract"
+      ],
+      "evidenceNote": "",
+      "example": "Tavo _extract.ts lines 59–80: rules in the system prompt, transcript + zones in the user turn.",
+      "related": [
+        "c-structured-output",
+        "c-prompt-versioning"
+      ],
+      "prereqs": [],
+      "gaps": "",
+      "next": "",
+      "authorship": "ai-assisted",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-context-window",
+      "name": "Context window, tokens & stateless APIs",
+      "category": "LLM fundamentals",
+      "status": "learning",
+      "level": 2,
+      "explanation": "The API remembers nothing between calls, so the whole conversation is resent each time; everything sent counts as tokens against the window and the bill.",
+      "why": "Drives cost, latency and how you design memory for agents.",
+      "evidence": [
+        "E-proj-learnlog"
+      ],
+      "evidenceNote": "",
+      "example": "The WhatsApp webhook resends the full guest transcript on every message; at Tavo's scale cost/latency matter more than the window size.",
+      "related": [
+        "c-conversation-state",
+        "c-api-cost",
+        "c-tokenization-code"
+      ],
+      "prereqs": [],
+      "gaps": "",
+      "next": "Log token counts per WhatsApp turn in the extraction log.",
+      "authorship": "mixed",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-rag-vs-finetune",
+      "name": "RAG vs fine-tuning",
+      "category": "RAG",
+      "status": "learning",
+      "level": 2,
+      "explanation": "Fine-tuning changes a model's weights from examples; RAG leaves the model alone and hands it fresh documents at question time.",
+      "why": "For facts that change or do not exist yet, retrieval wins; fine-tuning is for style/format, rarely for knowledge.",
+      "evidence": [
+        "E-chat-gta"
+      ],
+      "evidenceNote": "Your first idea was to \"train a model before the game comes out\"; the project chose RAG instead.",
+      "example": "GTA 6 wiki pages won't exist until launch — only retrieval can use them on day one.",
+      "related": [
+        "c-rag",
+        "c-llm-basics"
+      ],
+      "prereqs": [],
+      "gaps": "",
+      "next": "",
+      "authorship": "plan-only",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-tracebacks",
+      "name": "Reading tracebacks & test failures",
+      "category": "Testing",
+      "status": "practiced",
+      "level": 1,
+      "explanation": "Read a traceback bottom-up: the last line is the error, the frame above it is where it happened. In a pytest diff, the left side is your output, the right side the expected value.",
+      "why": "Most debugging time is spent here; reading it well is faster than guessing.",
+      "evidence": [
+        "E-chat-gta",
+        "E-gta-claude"
+      ],
+      "evidenceNote": "You asked \"tell me how to read those failed tests\" (2026-10-06) and later fixed TypeError: str / str in raw_to_cache and ingest yourself.",
+      "example": "\"unsupported operand type(s) for /: 'str' and 'str'\" → cache_dir was a string, wrap it in Path().",
+      "related": [
+        "c-pytest",
+        "c-python-gotchas"
       ],
       "prereqs": [],
       "gaps": "",
@@ -5521,9 +5724,9 @@
     },
     {
       "id": "t-wa-verify-live",
-      "title": "Find out whether the WhatsApp channel is connected to a real Meta number; record eval-intent / eval-extraction results",
+      "title": "WhatsApp: run eval-extraction (9 cases) + eval-intent and record the pass counts; decide whether to file the Meta ticket",
       "projectId": "tavo",
-      "priority": "P2",
+      "priority": "P3",
       "status": "todo",
       "pipelineId": "pl-whatsapp",
       "stageId": "live",
@@ -5534,8 +5737,8 @@
       ],
       "source": "suggested",
       "evidence": [
-        "E-tavo-wa-setup",
-        "E-tavo-evalscripts"
+        "E-tavo-evalscripts",
+        "E-proj-learnlog"
       ],
       "due": "",
       "notes": ""
@@ -5979,6 +6182,46 @@
       "notes": ""
     },
     {
+      "id": "t-road-hebrew-boards",
+      "title": "Check Hebrew job boards (alljobs, drushim, jobmaster, ethosia) — the 79-posting research could not reach them, so junior roles are under-sampled",
+      "projectId": null,
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": null,
+      "stageId": null,
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [],
+      "source": "evidence",
+      "evidence": [
+        "E-chat-jobmarket"
+      ],
+      "due": "",
+      "notes": ""
+    },
+    {
+      "id": "t-road-langfuse",
+      "title": "Instrument one Tavo LLM call or agent with Langfuse; treat seating decision logs as traces",
+      "projectId": "tavo",
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": null,
+      "stageId": null,
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [
+        "c-observability",
+        "c-agents",
+        "c-ci-gates"
+      ],
+      "source": "evidence",
+      "evidence": [
+        "E-chat-jobmarket"
+      ],
+      "due": "",
+      "notes": ""
+    },
+    {
       "id": "t-road-freelance",
       "title": "Roadmap Project 4: first paid AI automation client",
       "projectId": null,
@@ -6347,6 +6590,49 @@
     },
     {
       "id": "tl-14",
+      "date": "2026-07-30",
+      "type": "milestone",
+      "title": "First senior-style code review of the early table-reservation editor (later Tavo)",
+      "projectId": "tavo",
+      "detail": "",
+      "evidence": []
+    },
+    {
+      "id": "tl-15",
+      "date": "2026-08-19",
+      "type": "concept",
+      "title": "Started learning AI: learning path (LLMs, prompting, RAG, APIs, cost, evaluation, agents)",
+      "projectId": null,
+      "detail": "",
+      "evidence": [
+        "E-chat-learnpath"
+      ]
+    },
+    {
+      "id": "tl-16",
+      "date": "2026-08-23",
+      "type": "concept",
+      "title": "Asked for LLMs and RAG to be explained; real-world uses",
+      "projectId": null,
+      "detail": "",
+      "evidence": [
+        "E-chat-ragllm"
+      ]
+    },
+    {
+      "id": "tl-17",
+      "date": "2026-08-31",
+      "type": "decision",
+      "title": "Attune four-phase learning plan (learn Gen AI by building)",
+      "projectId": "attune",
+      "detail": "",
+      "evidence": [
+        "E-chat-genai",
+        "E-proj-itunes"
+      ]
+    },
+    {
+      "id": "tl-18",
       "date": "2026-09-01",
       "type": "milestone",
       "title": "Attune mood-playlist app built locally; SaaS assessment",
@@ -6357,7 +6643,51 @@
       ]
     },
     {
-      "id": "tl-15",
+      "id": "tl-19",
+      "date": "2026-09-05",
+      "type": "decision",
+      "title": "Off-peak QR promotion idea evaluated: 3.9/10, do not build standalone",
+      "projectId": "offpeak-idea",
+      "detail": "",
+      "evidence": [
+        "E-chat-barcode"
+      ]
+    },
+    {
+      "id": "tl-20",
+      "date": "2026-09-19",
+      "type": "decision",
+      "title": "Tavo repositioned as a learning tool rather than a product (your words)",
+      "projectId": "tavo",
+      "detail": "",
+      "evidence": [
+        "E-chat-roadmap"
+      ]
+    },
+    {
+      "id": "tl-21",
+      "date": "2026-09-25",
+      "type": "verification",
+      "title": "You audited 6 judge verdicts by hand — 1 disagreement; rubric bug found",
+      "projectId": "codebase-rag",
+      "detail": "",
+      "evidence": [
+        "E-chat-roadmap"
+      ]
+    },
+    {
+      "id": "tl-22",
+      "date": "2026-09-29",
+      "type": "decision",
+      "title": "Job-market research (79 postings): years of experience is the binding constraint; agents > RAG; evaluation = trace diagnosis",
+      "projectId": null,
+      "detail": "",
+      "evidence": [
+        "E-chat-jobmarket"
+      ]
+    },
+    {
+      "id": "tl-23",
       "date": "2026-09-08",
       "type": "milestone",
       "title": "Keyboard Sounds: global key capture + audio (Phase 1–2)",
@@ -6368,7 +6698,7 @@
       ]
     },
     {
-      "id": "tl-16",
+      "id": "tl-24",
       "date": "2026-09-12",
       "type": "verification",
       "title": "Keyboard Sounds: accelerometer force confirmed on M2",
@@ -6379,7 +6709,7 @@
       ]
     },
     {
-      "id": "tl-17",
+      "id": "tl-25",
       "date": "2026-09-18",
       "type": "decision",
       "title": "First AI/ML Job roadmap: aim at AI Developer / AI Quality, 5-month plan",
@@ -6390,7 +6720,7 @@
       ]
     },
     {
-      "id": "tl-18",
+      "id": "tl-26",
       "date": "2026-09-21",
       "type": "verification",
       "title": "Shift alarm automation verified end to end (alarms fired)",
@@ -6401,7 +6731,7 @@
       ]
     },
     {
-      "id": "tl-19",
+      "id": "tl-27",
       "date": "2026-09-23",
       "type": "decision",
       "title": "Tavo Phase 1 seating evaluation: no LLM scorer",
@@ -6412,7 +6742,7 @@
       ]
     },
     {
-      "id": "tl-20",
+      "id": "tl-28",
       "date": "2026-09-23",
       "type": "pipeline",
       "title": "codebase-rag: lexical baseline + golden set",
@@ -6423,7 +6753,7 @@
       ]
     },
     {
-      "id": "tl-21",
+      "id": "tl-29",
       "date": "2026-09-25",
       "type": "concept",
       "title": "Learned: LLM-as-judge, judge audit, dense retrieval, RRF (Hebrew concepts guide)",
@@ -6434,7 +6764,7 @@
       ]
     },
     {
-      "id": "tl-22",
+      "id": "tl-30",
       "date": "2026-09-29",
       "type": "decision",
       "title": "codebase-rag: held-out half reverses the hybrid recommendation",
@@ -6445,7 +6775,7 @@
       ]
     },
     {
-      "id": "tl-23",
+      "id": "tl-31",
       "date": "2026-09-30",
       "type": "decision",
       "title": "Python refresher plan: write the code unaided",
@@ -6456,18 +6786,41 @@
       ]
     },
     {
-      "id": "tl-24",
+      "id": "tl-32",
       "date": "2026-10-01",
       "type": "concept",
-      "title": "Practiced asyncio unaided: async call_tool + gather/Semaphore",
+      "title": "Practiced asyncio unaided: async call_tool + gather/Semaphore — eval ran much faster",
       "projectId": "codebase-rag",
       "detail": "",
       "evidence": [
-        "E-rag-68eb58a"
+        "E-rag-68eb58a",
+        "E-chat-roadmap"
       ]
     },
     {
-      "id": "tl-25",
+      "id": "tl-33",
+      "date": "2026-10-01",
+      "type": "concept",
+      "title": "Started learning FastAPI (tutorial video) before writing it",
+      "projectId": "codebase-rag",
+      "detail": "",
+      "evidence": [
+        "E-chat-roadmap"
+      ]
+    },
+    {
+      "id": "tl-34",
+      "date": "2026-10-05",
+      "type": "decision",
+      "title": "GTA cheatsheet scoped: RAG over fine-tuning, GTA V as stand-in data; Python refresher built around it",
+      "projectId": "gta-cheatsheet",
+      "detail": "",
+      "evidence": [
+        "E-chat-gta"
+      ]
+    },
+    {
+      "id": "tl-35",
       "date": "2026-10-06",
       "type": "milestone",
       "title": "GTA cheatsheet architecture + Python Refresher Week 1",
@@ -6479,7 +6832,7 @@
       ]
     },
     {
-      "id": "tl-26",
+      "id": "tl-36",
       "date": "2026-10-11",
       "type": "milestone",
       "title": "Python Refresher Week 2 (real wiki data, DI, pagination)",
@@ -6490,7 +6843,7 @@
       ]
     },
     {
-      "id": "tl-27",
+      "id": "tl-37",
       "date": "2026-10-12",
       "type": "task",
       "title": "Emailed gta.wiki for API permission",
@@ -6501,7 +6854,7 @@
       ]
     },
     {
-      "id": "tl-28",
+      "id": "tl-38",
       "date": "2026-10-14",
       "type": "pipeline",
       "title": "GTA cheatsheet: first real run — 21 hand-saved pages → 791 chunks; cleaning problems A–H documented",
@@ -6512,7 +6865,7 @@
       ]
     },
     {
-      "id": "tl-29",
+      "id": "tl-39",
       "date": "2026-10-14",
       "type": "task",
       "title": "Tavo: committed decision-logging/outcome fixes + skipCleaning",
@@ -6523,7 +6876,7 @@
       ]
     },
     {
-      "id": "tl-30",
+      "id": "tl-40",
       "date": "2026-10-14",
       "type": "verification",
       "title": "Dashboard investigation: all repos, docs and sessions re-read",
@@ -6532,7 +6885,7 @@
       "evidence": []
     },
     {
-      "id": "tl-31",
+      "id": "tl-41",
       "date": "2026-10-15",
       "type": "milestone",
       "title": "GTA cheatsheet pushed to GitHub (Weeks 1–2 code written unaided)",
@@ -6543,7 +6896,7 @@
       ]
     },
     {
-      "id": "tl-32",
+      "id": "tl-42",
       "date": "2026-10-15",
       "type": "verification",
       "title": "GTA tests re-run: 36/40 pass (Week 1 21/21, Week 2 15/19)",
@@ -7012,7 +7365,7 @@
       "ref": "https://github.com/itayyybh/gta-cheatsheet/blob/main/cleaning_notes.md",
       "date": "2026-10-14",
       "confidence": "verified",
-      "note": "Counts re-checked against chunks.json (791 / 166 empty / 385 \"=\" / 135 > 1000)."
+      "note": "Written by Claude at your request (chat 2026-10-14). Counts re-checked against chunks.json (791 / 166 empty / 385 \"=\" / 135 > 1000)."
     },
     {
       "id": "E-gta-claude",
@@ -7022,6 +7375,96 @@
       "date": "2026-10-15",
       "confidence": "verified",
       "note": ""
+    },
+    {
+      "id": "E-chat-learnpath",
+      "title": "claude.ai chat: AI learning path for SaaS builders",
+      "type": "chat",
+      "ref": "claude.ai conversation 56f8b150",
+      "date": "2026-08-19",
+      "confidence": "verified",
+      "note": "From your data export. First AI learning plan; RAG demo; Tavo AI ideas (claudeScorer, outcome analyzer, no-show prediction)."
+    },
+    {
+      "id": "E-chat-ragllm",
+      "title": "claude.ai chat: RAG and LLM explained",
+      "type": "chat",
+      "ref": "claude.ai conversation d8a8064d",
+      "date": "2026-08-23",
+      "confidence": "verified",
+      "note": "From your data export."
+    },
+    {
+      "id": "E-chat-genai",
+      "title": "claude.ai chat: Gen AI training project app (Attune origin)",
+      "type": "chat",
+      "ref": "claude.ai conversation a80ad04e",
+      "date": "2026-08-31",
+      "confidence": "verified",
+      "note": "From your data export. Four-phase learning plan."
+    },
+    {
+      "id": "E-chat-barcode",
+      "title": "claude.ai chat: Restaurant barcode promotion for off-peak hours (idea reality check)",
+      "type": "chat",
+      "ref": "claude.ai conversation 6d06b50f",
+      "date": "2026-09-05",
+      "confidence": "verified",
+      "note": "From your data export. Verdict 3.9/10, do not build standalone."
+    },
+    {
+      "id": "E-chat-roadmap",
+      "title": "claude.ai chat: Israeli AI/ML job roadmap (232 messages — Tavo Phase 1, codebase-rag, Python plan)",
+      "type": "chat",
+      "ref": "claude.ai conversation e5dd509c",
+      "date": "2026-09-18",
+      "confidence": "verified",
+      "note": "From your data export. Your own messages read in full; the export truncates its summary."
+    },
+    {
+      "id": "E-chat-jobmarket",
+      "title": "Job-market research: 79 Israeli AI postings (in the roadmap chat)",
+      "type": "chat",
+      "ref": "claude.ai conversation e5dd509c, message 183",
+      "date": "2026-09-29",
+      "confidence": "reported",
+      "note": "Years of paid experience is the binding constraint (24 of 25 AI-Engineer postings); agents displaced RAG; evaluation framed as trace diagnosis. Hebrew job boards could not be reached."
+    },
+    {
+      "id": "E-chat-gta",
+      "title": "claude.ai chat: GTA 6 AI content idea (220 messages — scoping + Python refresher)",
+      "type": "chat",
+      "ref": "claude.ai conversation f8ed09f1",
+      "date": "2026-10-05",
+      "confidence": "verified",
+      "note": "From your data export. Shows your code iterations, hints requested, and that Claude wrote the tests, picked the 20 pages and wrote cleaning_notes.md."
+    },
+    {
+      "id": "E-chat-trademcp",
+      "title": "claude.ai chat: SDK auth server incompatibility (GitHub MCP for the trading journal)",
+      "type": "chat",
+      "ref": "claude.ai conversation (2026-07-14)",
+      "date": "2026-07-14",
+      "confidence": "verified",
+      "note": "From your data export."
+    },
+    {
+      "id": "E-proj-learnlog",
+      "title": "Claude Project \"learning AI\": tavo-ai-learning-log.md",
+      "type": "doc",
+      "ref": "claude.ai Project \"learning AI\"",
+      "date": "2026-08-23",
+      "confidence": "verified",
+      "note": "Concepts taught via Tavo code; Meta WhatsApp connection on hold; rag-practice originally used Voyage AI and was not yet run."
+    },
+    {
+      "id": "E-proj-itunes",
+      "title": "Claude Project \"itunes\": project-plan.md + Library.xml",
+      "type": "doc",
+      "ref": "claude.ai Project \"itunes\"",
+      "date": "2026-09-01",
+      "confidence": "verified",
+      "note": "From your data export."
     },
     {
       "id": "E-mail-gtawiki",
