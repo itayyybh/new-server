@@ -6,7 +6,7 @@
     "generatedAt": "2026-10-14",
     "sources": {
       "accessed": [
-        "5 GitHub repositories (tavo, codebase-rag, keyboard-sounds, trading-dashboard, new-server) incl. all branches and commit history",
+        "6 GitHub repositories (tavo, codebase-rag, gta-cheatsheet, keyboard-sounds, trading-dashboard, new-server) incl. all branches and commit history; gta-cheatsheet tests executed",
         "7 Claude Docs (roadmap, Tavo deploy check, GTA RAG architecture, Python Refresher Weeks 1–2, Seating evaluation EN/HE)",
         "6 earlier Claude Code sessions (titles + latest transcript pages)",
         "1 targeted Gmail search (gta.wiki permission)"
@@ -14,7 +14,8 @@
       "notAccessed": [
         "claude.ai chat conversations outside Claude Code sessions (no tool access)",
         "Private repo itayyybh/alarm-clock-automation (not returned by repo listing)",
-        "Local code for Attune and the Python refresher exercises (on your Mac, never pushed)",
+        "Local code for Attune (on your Mac, never pushed)",
+        "Your claude.ai data export (requested — not yet received)",
         "Live Supabase data, Vercel deployments, and test runs (tests were not executed)"
       ]
     },
@@ -351,42 +352,94 @@
     {
       "id": "gta-cheatsheet",
       "name": "GTA Cheatsheet (RAG)",
-      "tagline": "Question answering on GTA V wiki data, switching to GTA 6 at launch (2026-11-19)",
+      "tagline": "Question answering on GTA V wiki data, switching to GTA 6 at launch (2026-11-19). Every line of code written by you.",
       "kind": "Learning project + possible product",
-      "status": "planning",
-      "purpose": "Players ask in plain language and get a short, cited answer built from wiki pages. Also the vehicle for the Python refresher (Weeks 1–2 exercises are its ingestion + evaluation code).",
+      "status": "development",
+      "purpose": "Players ask in plain language and get a short, cited answer built from wiki pages. Also the vehicle for the Python refresher: Weeks 1–2 build its ingestion and evaluation code, written unaided (CLAUDE.md forbids the assistant from editing cheatsheet.py).",
       "problem": "Answer game questions fast, spoiler-aware, from current sources — including a game whose wikis will be thin at launch.",
       "users": "GTA players; you as the learner.",
       "stack": [
         "Python",
         "pytest",
         "requests",
+        "re",
+        "json",
+        "pathlib",
         "MediaWiki API",
-        "JSON",
         "planned: embeddings, vector store (local or pgvector), BM25 hybrid, Claude"
       ],
       "architecture": [
         "Two paths share one vector store: offline ingestion (sources → clean → chunk → embed → store) and live question path (retrieve → generate → interface → log).",
-        "Every chunk carries title, section, URL and game metadata to enable citations and game filtering.",
-        "HTTP and sleep are injected into functions so tests run offline with fakes."
+        "Every chunk carries title, section, URL metadata to enable citations (and later game filtering).",
+        "HTTP and sleep are injected into functions (get=requests.get, sleep=time.sleep) so tests run offline with fakes.",
+        "Until gta.wiki permits scripts: pages are saved by hand into raw/, converted to page dicts in cache/ by raw_to_cache, then ingest() reads only the cache."
       ],
       "decisions": [
         "Build on GTA V first so every part can be measured before GTA 6 data exists.",
         "Golden set before retrieval code; never cut evaluation if weeks slip.",
         "Data source: gta.wiki (CC BY-NC-SA, scripted access needs consent), not Fandom (bans automated copying).",
-        "Language: Python (the refresher exercises are Python)."
+        "Language: Python. The assistant may hint, review and run tests, but never writes cheatsheet.py (CLAUDE.md).",
+        "Fix cleaning test-first: add test pages with ===/==== headings and multi-line templates before changing split_sections/clean_text."
       ],
-      "featuresVerified": [],
+      "featuresVerified": [
+        "Week 1 complete: clean_text, split_sections, make_chunks, save/load_chunks, parse_api_response, keyword_search, recall_at_k — 21/21 tests pass (re-run 2026-10-15).",
+        "Week 2 Days 1–4 complete: fetch_page, list_category (pagination), parse_infobox / remove_infobox / infobox_to_chunk, ingest with cache — 15/15 of their tests pass.",
+        "First real ingestion run: 21 hand-saved gta.wiki pages → 791 chunks in chunks.json (2026-10-14).",
+        "Data-quality review of the real run written up in cleaning_notes.md (problems A–H, counts verified against chunks.json)."
+      ],
       "featuresInProgress": [
-        "Python Refresher Week 1 (clean_text … recall_at_k, 21 tests) — completion status NOT evidenced.",
-        "Python Refresher Week 2 (fetch_page … validate_golden, 19 tests) — completion status NOT evidenced."
+        "Week 2 Day 5: chunk_stats — still a placeholder (0/2 tests)."
       ],
       "featuresPlanned": [
-        "Week 3: embeddings + vector search scored against the keyword baseline.",
-        "Generation with grounding/citations and a \"not documented yet\" fallback.",
-        "Single-page interface, logging, scheduled re-ingestion for launch week."
+        "Day 6: golden.json (30 questions) + validate_golden (0/2 tests).",
+        "Day 7: first recall@5 baseline for keyword_search on real data.",
+        "Cleaning fixes in the order of cleaning_notes.md: heading levels → junk-section skip-list → text-bearing templates → links/markup → re-measure → game field → tables.",
+        "Week 3: embeddings + vector search vs the keyword baseline; then generation with citations and a \"not documented yet\" fallback."
       ],
       "issues": [
+        {
+          "type": "bug",
+          "text": "Heading parsing: ==(.*?)== mis-reads ===/==== headings — 166 chunks have an empty section name and 385 of 791 (49%) start with \"=\".",
+          "evidence": [
+            "E-gta-notes",
+            "E-gta-repo"
+          ]
+        },
+        {
+          "type": "bug",
+          "text": "clean_text leaves markup: [[links]] in 591 chunks, multi-line {{templates}} in 202; deleting text-bearing templates ({{V}}, {{O}}, {{WP|…}}) removes words in 67 chunks.",
+          "evidence": [
+            "E-gta-notes"
+          ]
+        },
+        {
+          "type": "bug",
+          "text": "135 chunks exceed 1,000 characters (single huge paragraphs; longest 13,170).",
+          "evidence": [
+            "E-gta-notes"
+          ]
+        },
+        {
+          "type": "bug",
+          "text": "File-name typo turned \"Entity XF\" into \"Entity Xf\" — titles must match the wiki exactly for links and the golden set.",
+          "evidence": [
+            "E-gta-notes"
+          ]
+        },
+        {
+          "type": "question",
+          "text": "URLs are built two ways: raw_to_cache uses base_url + \"/w/\" + name, parse_api_response uses \"/wiki/\". Check which path gta.wiki actually serves so citations link correctly.",
+          "evidence": [
+            "E-gta-repo"
+          ]
+        },
+        {
+          "type": "question",
+          "text": "Pages mix games (GTA IV / V / VI sections) — a GTA V question can retrieve a GTA IV answer until chunks carry a game field.",
+          "evidence": [
+            "E-gta-notes"
+          ]
+        },
         {
           "type": "question",
           "text": "Live API ingestion waits on permission from the gta.wiki host — request emailed 2026-10-12, no reply in the thread.",
@@ -402,18 +455,6 @@
             "E-art-gta",
             "E-art-py2"
           ]
-        },
-        {
-          "type": "question",
-          "text": "Open decisions: vector store choice, first source, product differentiation, branding that avoids Rockstar trademarks.",
-          "evidence": [
-            "E-art-gta"
-          ]
-        },
-        {
-          "type": "question",
-          "text": "Location of cheatsheet.py / tests is not in any accessible repository.",
-          "evidence": []
         }
       ],
       "pipelines": [
@@ -423,8 +464,10 @@
         "c-rag",
         "c-etl",
         "c-regex",
+        "c-wiki-markup",
         "c-chunking",
         "c-metadata",
+        "c-metadata-filtering",
         "c-json-serialization",
         "c-rest-api",
         "c-pagination",
@@ -434,12 +477,16 @@
         "c-test-doubles",
         "c-tdd",
         "c-pytest",
+        "c-python-modern",
+        "c-python-gotchas",
+        "c-counter",
         "c-lexical-search",
         "c-golden-set",
         "c-recall-k",
         "c-baseline",
         "c-data-validation",
         "c-data-quality",
+        "c-structured-data",
         "c-licensing",
         "c-hybrid-rrf",
         "c-embeddings",
@@ -450,6 +497,14 @@
         "c-venv"
       ],
       "links": [
+        {
+          "label": "Repository",
+          "url": "https://github.com/itayyybh/gta-cheatsheet"
+        },
+        {
+          "label": "cleaning_notes.md",
+          "url": "https://github.com/itayyybh/gta-cheatsheet/blob/main/cleaning_notes.md"
+        },
         {
           "label": "GTA Cheatsheet — RAG Architecture (doc)",
           "url": "https://claude.ai/artifact/H6zLwn8ir2Dg6ZLapaLUM4"
@@ -464,14 +519,18 @@
         }
       ],
       "started": "2026-10-05",
-      "lastActivity": "2026-10-12",
-      "lastVerified": "2026-10-14",
-      "nextAction": "Record where you are: run `pytest` on Week 1 + Week 2 and write the pass counts into this dashboard, then save ~20 GTA V pages by hand into the cache folder (no script) and produce the first recall@5 baseline.",
+      "lastActivity": "2026-10-15",
+      "lastVerified": "2026-10-15",
+      "nextAction": "Week 2 Day 5: delete the chunk_stats placeholder at the bottom of cheatsheet.py, implement chunk_stats(chunks, max_chars=1000) until `pytest test_week2.py -k chunk_stats` passes, then fill the chunk_stats row in cleaning_notes.md for the 791-chunk run.",
       "unknowns": [
-        "How many of the 40 refresher tests pass.",
-        "Whether the golden set has been drafted."
+        "Which URL path (/w/ or /wiki/) gta.wiki serves.",
+        "Whether Weird Gloop will allow scripted access."
       ],
       "evidence": [
+        "E-gta-repo",
+        "E-gta-tests",
+        "E-gta-notes",
+        "E-gta-claude",
         "E-art-gta",
         "E-art-py1",
         "E-art-py2",
@@ -1742,18 +1801,19 @@
       "name": "GTA cheatsheet ingestion → RAG",
       "type": "ETL + RAG",
       "purpose": "Turn wiki pages into cited, grounded answers; switch sources to GTA 6 at launch.",
-      "input": "MediaWiki API pages (gta.wiki) or hand-saved wikitext",
-      "output": "chunks.json, golden.json, recall@5 baseline, then answers with sources",
-      "nextTask": "t-gta-tests",
+      "input": "Hand-saved gta.wiki wikitext (raw/*.txt, 21 pages) → cache/*.json page dicts; later the MediaWiki API",
+      "output": "chunks.json (791 chunks), then golden.json, a recall@5 baseline, and answers with sources",
+      "nextTask": "t-gta-chunkstats",
       "evidence": [
-        "E-art-gta",
-        "E-art-py1",
-        "E-art-py2"
+        "E-gta-repo",
+        "E-gta-tests",
+        "E-gta-notes",
+        "E-art-gta"
       ],
       "stages": [
         {
           "id": "fetch",
-          "name": "Fetch pages (fetch_page, list_category)",
+          "name": "Fetch pages via API (fetch_page, list_category)",
           "status": "blocked",
           "description": "MediaWiki parse + categorymembers with pagination, User-Agent, timeout, injected get().",
           "tools": [
@@ -1767,114 +1827,180 @@
             "c-dependency-injection"
           ],
           "dependsOn": [],
-          "validation": "",
+          "validation": "Code written and 6/6 unit tests pass with fakes (2026-10-15). Never run against the live API.",
           "issues": [
-            "Live scripted access needs gta.wiki consent — emailed 2026-10-12, no reply."
+            "Live scripted access needs gta.wiki consent — emailed 2026-10-12, no reply.",
+            "list_category sends no timeout (fetch_page does)."
           ],
           "evidence": [
-            "E-art-py2",
+            "E-gta-tests",
             "E-mail-gtawiki"
           ],
-          "next": "Save ~20 pages by hand meanwhile."
+          "next": "Run live only after permission arrives."
+        },
+        {
+          "id": "handsave",
+          "name": "Hand-saved pages → cache (raw_to_cache)",
+          "status": "verified",
+          "description": "Raw wikitext saved from the browser into raw/, converted to {title, url, text} page dicts in cache/.",
+          "tools": [
+            "pathlib",
+            "json"
+          ],
+          "concepts": [
+            "c-json-serialization",
+            "c-licensing"
+          ],
+          "dependsOn": [],
+          "validation": "21 raw pages → 21 cache files, used by the 2026-10-14 run.",
+          "issues": [
+            "Entity_Xf filename typo produced the wrong title.",
+            "URL built with /w/ here vs /wiki/ in parse_api_response.",
+            "raw_to_cache.py file is empty; the function lives in cheatsheet.py."
+          ],
+          "evidence": [
+            "E-gta-repo",
+            "E-gta-notes"
+          ],
+          "next": ""
+        },
+        {
+          "id": "infobox",
+          "name": "Infobox extraction",
+          "status": "verified",
+          "description": "find_block, parse_infobox, remove_infobox, infobox_to_chunk — key: value facts as their own chunk.",
+          "tools": [],
+          "concepts": [
+            "c-structured-data",
+            "c-wiki-markup"
+          ],
+          "dependsOn": [
+            "handsave"
+          ],
+          "validation": "6/6 tests pass; real run produced 18 infobox chunks for 21 pages.",
+          "issues": [
+            "Character pages use {{/infobox}} sub-pages → no infobox chunk.",
+            "Infobox values still contain links/templates/image fields."
+          ],
+          "evidence": [
+            "E-gta-tests",
+            "E-gta-notes"
+          ],
+          "next": ""
         },
         {
           "id": "clean",
-          "name": "Clean wikitext + infobox",
-          "status": "investigate",
-          "description": "clean_text (regex), parse_infobox / remove_infobox / infobox_to_chunk.",
+          "name": "Clean wikitext (clean_text)",
+          "status": "implemented",
+          "description": "Removes [edit], single-line {{templates}}, collapses whitespace.",
           "tools": [
             "re"
           ],
           "concepts": [
             "c-regex",
-            "c-structured-data"
+            "c-wiki-markup"
           ],
           "dependsOn": [
-            "fetch"
+            "infobox"
           ],
-          "validation": "Week 1 Day 1 + Week 2 Day 3 tests — pass state unknown.",
-          "issues": [],
+          "validation": "Week 1 tests pass, but the real run shows it is not sufficient for real pages.",
+          "issues": [
+            "[[links]] left in 591 chunks; multi-line templates in 202; bold/italic in 141; HTML in 50.",
+            "Deleting text-bearing templates ({{V}}, {{O}}, {{WP|…}}) removes words in 67 chunks."
+          ],
           "evidence": [
-            "E-art-py1",
-            "E-art-py2"
+            "E-gta-notes"
           ],
-          "next": ""
+          "next": "Add failing tests with real-world markup first, then fix in the order of cleaning_notes.md (D before C)."
         },
         {
           "id": "chunk",
           "name": "Section chunking with metadata",
-          "status": "investigate",
-          "description": "split_sections + make_chunks(max_chars=1000); chunks never mix sections.",
+          "status": "implemented",
+          "description": "split_sections + make_chunks(max_chars=1000); chunks never mix sections; title/url/section on every chunk.",
           "tools": [],
           "concepts": [
             "c-chunking",
-            "c-metadata"
+            "c-metadata",
+            "c-regex"
           ],
           "dependsOn": [
             "clean"
           ],
-          "validation": "",
-          "issues": [],
-          "evidence": [
-            "E-art-py1"
+          "validation": "Week 1 tests pass (they only use == headings).",
+          "issues": [
+            "==(.*?)== mis-reads ===/==== headings: 166 empty section names, 385 names starting with \"=\".",
+            "135 chunks over 1,000 chars (unsplittable paragraphs)."
           ],
-          "next": ""
+          "evidence": [
+            "E-gta-notes",
+            "E-gta-repo"
+          ],
+          "next": "Count = signs on both sides of a heading; decide whether a subsection is \"Design\" or \"Design > Images\"."
         },
         {
           "id": "store",
-          "name": "Cache + serialize (JSON)",
-          "status": "investigate",
-          "description": "ingest() with on-disk cache and rate-limited fetches; save_chunks/load_chunks with ensure_ascii=False.",
+          "name": "Ingest + cache + serialize",
+          "status": "verified",
+          "description": "ingest() reads cached pages (no network, no sleep), builds infobox + text chunks; save_chunks writes chunks.json.",
           "tools": [],
           "concepts": [
-            "c-json-serialization",
+            "c-etl",
             "c-api-caching",
-            "c-rate-limiting"
+            "c-rate-limiting",
+            "c-json-serialization"
           ],
           "dependsOn": [
             "chunk"
           ],
-          "validation": "",
-          "issues": [],
+          "validation": "3/3 tests pass; real run wrote 791 chunks from 21 pages to chunks.json (2026-10-14).",
+          "issues": [
+            "Crashed on a string cache_dir during the real run — tests only pass a Path (now handled with Path(cache_dir); add a test)."
+          ],
           "evidence": [
-            "E-art-py1",
-            "E-art-py2"
+            "E-gta-tests",
+            "E-gta-notes",
+            "E-gta-repo"
           ],
           "next": ""
         },
         {
           "id": "quality",
           "name": "Chunk stats + eyeball check",
-          "status": "investigate",
-          "description": "chunk_stats + random sample review → cleaning-problems list.",
+          "status": "in-progress",
+          "description": "chunk_stats(count, avg_chars, empty, too_long) + random-sample review → cleaning-problems list.",
           "tools": [],
           "concepts": [
-            "c-data-quality"
+            "c-data-quality",
+            "c-counter"
           ],
           "dependsOn": [
             "store"
           ],
-          "validation": "",
+          "validation": "Eyeball review done (cleaning_notes.md, counts match chunks.json). chunk_stats: 0/2 tests — placeholder.",
           "issues": [],
           "evidence": [
-            "E-art-py2"
+            "E-gta-notes",
+            "E-gta-tests"
           ],
-          "next": ""
+          "next": "Implement chunk_stats; fill the table in cleaning_notes.md."
         },
         {
           "id": "golden",
           "name": "Golden set (30 questions) + validate_golden",
-          "status": "investigate",
-          "description": "Mix of locations, prices, missions and 3–4 unanswerable questions.",
+          "status": "planned",
+          "description": "Mix of locations, prices, missions and 3–4 unanswerable questions, answerable from the 21 ingested pages.",
           "tools": [],
           "concepts": [
             "c-golden-set",
-            "c-data-validation"
+            "c-data-validation",
+            "c-vocab-leak"
           ],
           "dependsOn": [],
-          "validation": "",
+          "validation": "golden.json does not exist yet; validate_golden 0/2 tests.",
           "issues": [],
           "evidence": [
+            "E-gta-tests",
             "E-art-py2"
           ],
           "next": ""
@@ -1882,8 +2008,8 @@
         {
           "id": "keyword",
           "name": "Keyword search + recall@5 baseline",
-          "status": "investigate",
-          "description": "keyword_search scored with recall_at_k — the baseline embeddings must beat.",
+          "status": "implemented",
+          "description": "keyword_search (distinct query words found in title + section + text) scored with recall_at_k.",
           "tools": [],
           "concepts": [
             "c-lexical-search",
@@ -1894,10 +2020,12 @@
             "quality",
             "golden"
           ],
-          "validation": "",
-          "issues": [],
+          "validation": "Both functions pass their Week 1 tests. Baseline on real data not yet run (needs golden.json).",
+          "issues": [
+            "Substring matching (\"car\" matches \"Carbonizzare\") — a known baseline limitation, fine for a first number."
+          ],
           "evidence": [
-            "E-art-py1",
+            "E-gta-tests",
             "E-art-py2"
           ],
           "next": ""
@@ -1924,12 +2052,13 @@
         },
         {
           "id": "hybrid",
-          "name": "Hybrid retrieval",
+          "name": "Hybrid retrieval + game filter",
           "status": "planned",
-          "description": "Keyword + vector; exact names favour BM25.",
+          "description": "Keyword + vector; exact names favour BM25; filter by a game field so GTA IV text never answers GTA V questions.",
           "tools": [],
           "concepts": [
-            "c-hybrid-rrf"
+            "c-hybrid-rrf",
+            "c-metadata-filtering"
           ],
           "dependsOn": [
             "embed"
@@ -1937,7 +2066,8 @@
           "validation": "",
           "issues": [],
           "evidence": [
-            "E-art-gta"
+            "E-art-gta",
+            "E-gta-notes"
           ],
           "next": ""
         },
@@ -1945,7 +2075,7 @@
           "id": "generate",
           "name": "Grounded generation + citations",
           "status": "planned",
-          "description": "Answer only from chunks; \"not documented yet\" fallback; structured output validation; game filter.",
+          "description": "Answer only from chunks; \"not documented yet\" fallback; structured output validation.",
           "tools": [],
           "concepts": [
             "c-groundedness",
@@ -2522,23 +2652,24 @@
       "id": "c-python-modern",
       "name": "Modern Python (types, dataclasses, pathlib, f-strings)",
       "category": "Python",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Today's Python looks a lot like TypeScript: type hints on functions, @dataclass instead of hand-written classes, pathlib.Path for files, f-strings for text.",
       "why": "Every Python job codebase uses these; reading them fluently is the entry ticket.",
       "evidence": [
-        "E-rag-refresher"
+        "E-rag-refresher",
+        "E-gta-repo"
       ],
       "evidenceNote": "codebase-rag uses all of them, but the refresher notes that code was written by Claude.",
-      "example": "codebase_rag/*.py — dataclasses, `from __future__ import annotations`, pathlib.",
+      "example": "cheatsheet.py: pathlib.Path and /, f-strings, enumerate, {**page, \"text\": clean}.",
       "related": [
         "c-uv-ruff",
         "c-pytest"
       ],
       "prereqs": [],
-      "gaps": "Writing these from an empty file without help.",
+      "gaps": "Type hints, dataclasses and Pydantic — not used in cheatsheet.py yet.",
       "next": "Read codebase-rag end to end and list every line you cannot explain out loud.",
-      "authorship": "ai-assisted",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2546,22 +2677,23 @@
       "id": "c-venv",
       "name": "Virtual environments",
       "category": "Python",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "A private copy of Python per project so package versions don't clash.",
       "why": "Reproducible setups; every Python project starts here.",
       "evidence": [
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo"
       ],
       "evidenceNote": "",
-      "example": "Week 1 setup: create a venv, install pytest and requests.",
+      "example": ".venv/ in the GTA repo (git-ignored).",
       "related": [
         "c-uv-ruff"
       ],
       "prereqs": [],
       "gaps": "Unknown whether the Week 1 setup was completed.",
       "next": "Replace venv+pip with `uv` in codebase-rag (Task 1).",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2593,46 +2725,50 @@
       "id": "c-regex",
       "name": "Regular expressions",
       "category": "Python",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "A pattern language for finding and replacing text, e.g. \"anything between {{ and }}\".",
       "why": "Most data cleaning in ingestion pipelines is regex plus string methods.",
       "evidence": [
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo",
+        "E-gta-notes"
       ],
       "evidenceNote": "",
-      "example": "clean_text(): remove [edit] markers and {{templates}} with re.sub.",
+      "example": "clean_text and split_sections in cheatsheet.py (re.sub, re.match with a group).",
       "related": [
         "c-etl"
       ],
       "prereqs": [],
-      "gaps": "Non-greedy matching, multiline flags, nested templates.",
+      "gaps": "Heading levels (==(.*?)== mis-reads ===/====), multi-line patterns (re.DOTALL), replacing vs deleting.",
       "next": "Make Week 1 Day 1 tests pass, then handle nested {{ }} which a simple regex cannot.",
-      "authorship": "plan-only",
-      "revise": false,
+      "authorship": "self-written",
+      "revise": true,
       "isNew": false
     },
     {
       "id": "c-json-serialization",
       "name": "JSON serialization",
       "category": "Python",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Turning in-memory objects into a file format (JSON) and back.",
       "why": "Lets ingestion and search run as separate steps; it's how this dashboard is exported too.",
       "evidence": [
         "E-art-py1",
-        "E-sess-alarm"
+        "E-sess-alarm",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
-      "example": "save_chunks/load_chunks with encoding=\"utf-8\" and ensure_ascii=False.",
+      "example": "save_chunks / load_chunks with ensure_ascii=False; 791 chunks in chunks.json.",
       "related": [
         "c-rest-api"
       ],
       "prereqs": [],
       "gaps": "",
       "next": "Week 1 Day 4.",
-      "authorship": "mixed",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2719,16 +2855,17 @@
       "id": "c-pytest",
       "name": "pytest (fixtures, parametrize)",
       "category": "Testing",
-      "status": "learning",
+      "status": "practiced",
       "level": 2,
       "explanation": "Python's test runner: plain assert statements, fixtures for setup, parametrize for many cases.",
       "why": "Tests are the most visible gap in codebase-rag and are expected in interviews.",
       "evidence": [
         "E-art-py1",
         "E-art-py2",
-        "E-rag-refresher"
+        "E-rag-refresher",
+        "E-gta-tests"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You run pytest with -k per exercise and read assertion diffs; the test files were written for you.",
       "example": "test_cheatsheet.py (21 tests) and test_week2.py (19 tests).",
       "related": [
         "c-tdd",
@@ -2737,9 +2874,9 @@
       "prereqs": [
         "c-python-modern"
       ],
-      "gaps": "Fixtures and parametrize not yet exercised; pass state of refresher tests unknown.",
-      "next": "Task 2: tests for recall_at, tokenize on camelCase, BM25 idf on a 3-doc corpus.",
-      "authorship": "plan-only",
+      "gaps": "Writing tests yourself: fixtures (tmp_path), parametrize, fakes.",
+      "next": "Add the two test gaps from cleaning_notes H before fixing headings.",
+      "authorship": "mixed",
       "revise": false,
       "isNew": false
     },
@@ -2753,7 +2890,8 @@
       "why": "Proves a fix actually fixes the bug and stops regressions.",
       "evidence": [
         "E-tavo-tdd",
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
       "example": "Tavo end-of-day reset: RED (2 failed) → GREEN (8 passed) with vitest.",
@@ -2763,7 +2901,7 @@
       "prereqs": [],
       "gaps": "Doing it unaided in Python.",
       "next": "Follow the red/green loop in the refresher.",
-      "authorship": "ai-assisted",
+      "authorship": "mixed",
       "revise": false,
       "isNew": false
     },
@@ -2771,15 +2909,17 @@
       "id": "c-dependency-injection",
       "name": "Dependency injection",
       "category": "Testing",
-      "status": "learning",
+      "status": "practiced",
       "level": 2,
       "explanation": "Pass a function in (e.g. get=requests.get) instead of hard-coding it, so tests can swap in a fake.",
       "why": "Tests run offline, fast and deterministic.",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
-      "example": "fetch_page(title, base_url, get=requests.get); ingest(..., sleep=time.sleep).",
+      "example": "fetch_page(..., get=requests.get) and ingest(..., get=..., sleep=..., delay=1.0) — tests pass fakes.",
       "related": [
         "c-test-doubles",
         "c-strategy-interface"
@@ -2787,7 +2927,7 @@
       "prereqs": [],
       "gaps": "",
       "next": "Week 2 Days 1–4.",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2800,9 +2940,10 @@
       "explanation": "Stand-in objects that behave like the real thing for a test, e.g. a fake response with a .json() method.",
       "why": "Lets you test code that talks to the network.",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-tests"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "Your code accepts fakes and the provided tests use them; you have not written a fake yourself yet.",
       "example": "",
       "related": [
         "c-dependency-injection",
@@ -2810,7 +2951,7 @@
       ],
       "prereqs": [],
       "gaps": "",
-      "next": "Write one fake by hand for fetch_page.",
+      "next": "Write the missing test from cleaning_notes H (ingest with a str cache_dir) including its own fake.",
       "authorship": "plan-only",
       "revise": false,
       "isNew": false
@@ -2855,7 +2996,9 @@
       "evidence": [
         "E-server-app",
         "E-art-py2",
-        "E-tavo-wa-setup"
+        "E-tavo-wa-setup",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
       "example": "new-server GET /api/time returns JSON.",
@@ -2898,22 +3041,24 @@
       "id": "c-pagination",
       "name": "API pagination",
       "category": "Backend",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "APIs return large lists in batches plus a continuation token; you loop until there is none.",
       "why": "Missing the loop silently truncates data (first 500 pages only).",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
-      "example": "list_category with cmcontinue.",
+      "example": "list_category follows data[\"continue\"][\"cmcontinue\"] in a while True loop (3/3 tests).",
       "related": [
         "c-rest-api"
       ],
       "prereqs": [],
-      "gaps": "",
+      "gaps": "Never run against the live API yet.",
       "next": "Week 2 Day 2.",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2921,23 +3066,24 @@
       "id": "c-user-agent",
       "name": "User-Agent & polite scraping",
       "category": "Backend",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Identify your client in a header; MediaWiki asks bots to do so.",
       "why": "Anonymous scripts get blocked first.",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo"
       ],
       "evidenceNote": "",
-      "example": "",
+      "example": "fetch_page sends User-Agent: GTA_Cheatsheet and timeout=10.",
       "related": [
         "c-rate-limiting",
         "c-licensing"
       ],
       "prereqs": [],
-      "gaps": "",
+      "gaps": "list_category sends no timeout.",
       "next": "",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -2951,7 +3097,8 @@
       "why": "Protects free community sites and keeps you inside API quotas.",
       "evidence": [
         "E-rag-68eb58a",
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo"
       ],
       "evidenceNote": "",
       "example": "llm.py retries with 2**attempt backoff; ingest(delay=1.0).",
@@ -3466,16 +3613,18 @@
       "id": "c-etl",
       "name": "ETL / ingestion pipelines",
       "category": "Data engineering",
-      "status": "learning",
+      "status": "practiced",
       "level": 2,
       "explanation": "Extract raw data, Transform it into a clean consistent shape, Load it into storage — rerunnable.",
       "why": "The first half of every RAG system.",
       "evidence": [
         "E-art-gta",
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo",
+        "E-gta-notes"
       ],
       "evidenceNote": "",
-      "example": "ingest(titles, base_url, cache_dir).",
+      "example": "raw/ → raw_to_cache → cache/ → ingest → chunks.json: 21 pages, 791 chunks.",
       "related": [
         "c-chunking",
         "c-regex",
@@ -3484,7 +3633,7 @@
       "prereqs": [],
       "gaps": "",
       "next": "",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -3492,15 +3641,16 @@
       "id": "c-metadata",
       "name": "Chunk metadata",
       "category": "RAG",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Title, section, URL (and game) carried on every chunk.",
       "why": "Enables citations and filtering.",
       "evidence": [
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo"
       ],
       "evidenceNote": "",
-      "example": "",
+      "example": "Every chunk carries title, url and section.",
       "related": [
         "c-chunking",
         "c-groundedness"
@@ -3508,7 +3658,7 @@
       "prereqs": [],
       "gaps": "",
       "next": "",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -3516,20 +3666,22 @@
       "id": "c-structured-data",
       "name": "Structured vs unstructured data",
       "category": "Data engineering",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Key-value facts (an infobox) vs prose.",
       "why": "Structured facts answer the most common questions exactly.",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
-      "example": "",
+      "example": "parse_infobox → {\"type\", \"fields\"}; infobox_to_chunk writes key: value lines (18 infobox chunks).",
       "related": [],
       "prereqs": [],
       "gaps": "",
       "next": "",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -3567,9 +3719,10 @@
       "why": "Most failures start as bad data nobody looked at.",
       "evidence": [
         "E-tavo-eval",
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-notes"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "cleaning_notes.md: your own audit of 791 real chunks with counts per problem.",
       "example": "Only 11 of 64 recorded durations were plausible; test clicks found by timestamp clustering.",
       "related": [
         "c-store-facts",
@@ -3687,7 +3840,8 @@
       "why": "Decides whether a project can ever ship commercially.",
       "evidence": [
         "E-art-py2",
-        "E-mail-gtawiki"
+        "E-mail-gtawiki",
+        "E-gta-claude"
       ],
       "evidenceNote": "",
       "example": "",
@@ -3764,9 +3918,11 @@
       "why": "Too big buries the answer; too small loses context.",
       "evidence": [
         "E-rag-findings",
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo",
+        "E-gta-notes"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "make_chunks (section-bounded paragraph packing) written by you in cheatsheet.py.",
       "example": "60-line windows with 15 overlap won every metric in a 20–100 sweep.",
       "related": [
         "c-embedding-window",
@@ -3811,22 +3967,24 @@
       "id": "c-lexical-search",
       "name": "Keyword (lexical) search",
       "category": "RAG",
-      "status": "learning",
+      "status": "practiced",
       "level": 1,
       "explanation": "Match on exact words.",
       "why": "Baseline that embeddings must beat.",
       "evidence": [
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo",
+        "E-gta-tests"
       ],
       "evidenceNote": "",
-      "example": "keyword_search(chunks, query, k).",
+      "example": "keyword_search scores distinct query words found in title + section + text.",
       "related": [
         "c-bm25"
       ],
       "prereqs": [],
-      "gaps": "",
+      "gaps": "Substring matching (\"car\" hits \"Carbonizzare\"); no idf — compare with BM25 later.",
       "next": "",
-      "authorship": "plan-only",
+      "authorship": "self-written",
       "revise": false,
       "isNew": false
     },
@@ -4286,7 +4444,8 @@
       "why": "An eval you can't re-run for free stops being run.",
       "evidence": [
         "E-rag-readme",
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-repo"
       ],
       "evidenceNote": "",
       "example": "codebase-rag disk cache keyed on exact inputs; query vectors cached so a machine without torch reproduces hybrid runs.",
@@ -4296,7 +4455,7 @@
       "prereqs": [],
       "gaps": "",
       "next": "",
-      "authorship": "ai-assisted",
+      "authorship": "mixed",
       "revise": false,
       "isNew": false
     },
@@ -4484,9 +4643,10 @@
       "why": "If retrieval misses, no prompt can save the answer. But it says nothing about the other k−1 results.",
       "evidence": [
         "E-rag-findings",
-        "E-art-py1"
+        "E-art-py1",
+        "E-gta-repo"
       ],
-      "evidenceNote": "",
+      "evidenceNote": "You implemented recall_at_k yourself in cheatsheet.py (Week 1); codebase-rag's version was AI-assisted.",
       "example": "seating-006: correct file at rank 6 → recall@5 = 0, recall@10 = 1.",
       "related": [
         "c-mrr",
@@ -5032,6 +5192,107 @@
       "authorship": "mixed",
       "revise": false,
       "isNew": false
+    },
+    {
+      "id": "c-wiki-markup",
+      "name": "Parsing wiki markup (headings, links, templates)",
+      "category": "Data engineering",
+      "status": "learning",
+      "level": 2,
+      "explanation": "MediaWiki text uses == / === / ==== for heading levels, [[target|shown]] for links and {{...}} for templates — some of which ARE words ({{V}} = Grand Theft Auto V).",
+      "why": "Real ingestion is mostly about the messy input format, not the algorithm; 49% of your chunks got bad section names from one heading regex.",
+      "evidence": [
+        "E-gta-notes",
+        "E-gta-repo"
+      ],
+      "evidenceNote": "You found and counted these problems yourself on 791 real chunks.",
+      "example": "==(.*?)== reads \"===Design===\" as \"=Design\" and \"====Vehicle====\" as an empty name.",
+      "related": [
+        "c-regex",
+        "c-etl",
+        "c-data-quality"
+      ],
+      "prereqs": [
+        "c-regex"
+      ],
+      "gaps": "Multi-line templates, nested templates, link rewriting, heading levels.",
+      "next": "Write failing tests with ===/==== headings and a multi-line template, then fix split_sections and clean_text (cleaning A, then D, then C).",
+      "authorship": "self-written",
+      "revise": false,
+      "isNew": false
+    },
+    {
+      "id": "c-metadata-filtering",
+      "name": "Metadata filtering at search time",
+      "category": "RAG",
+      "status": "encountered",
+      "level": 2,
+      "explanation": "Store attributes like game or section on each chunk and restrict search to matching chunks before ranking.",
+      "why": "Stops a GTA IV paragraph answering a GTA V question; essential once GTA 6 data arrives.",
+      "evidence": [
+        "E-gta-notes",
+        "E-art-gta"
+      ],
+      "evidenceNote": "",
+      "example": "Buzzard Attack Chopper page has GTA IV, V and VI sections — 13 chunks mention GTA IV.",
+      "related": [
+        "c-metadata",
+        "c-hybrid-rrf"
+      ],
+      "prereqs": [
+        "c-metadata"
+      ],
+      "gaps": "",
+      "next": "Add a game field to chunks (cleaning step G1) and filter in keyword_search.",
+      "authorship": "plan-only",
+      "revise": false,
+      "isNew": true
+    },
+    {
+      "id": "c-python-gotchas",
+      "name": "Python slips: immutable strings, indentation, redefinitions",
+      "category": "Python",
+      "status": "revise",
+      "level": 1,
+      "explanation": "String methods return a new string (x = x.strip()); indentation decides what is inside a loop; a later def with the same name silently replaces the earlier one.",
+      "why": "These are the errors that cost you the most time in review — your own CLAUDE.md tracks them.",
+      "evidence": [
+        "E-gta-claude"
+      ],
+      "evidenceNote": "Listed under \"Recurring slips to watch for in reviews\".",
+      "example": "chunk_stats / validate_golden placeholders at the bottom of cheatsheet.py would override real definitions written above them.",
+      "related": [
+        "c-python-modern"
+      ],
+      "prereqs": [],
+      "gaps": "\"\\n\" vs \"/n\"; indexing (lines[i]) vs slicing (lines[i:]).",
+      "next": "Before each pytest run, scan the file for leftover `def …: pass` and unassigned string-method calls.",
+      "authorship": "self-written",
+      "revise": true,
+      "isNew": false
+    },
+    {
+      "id": "c-counter",
+      "name": "Counting with collections.Counter",
+      "category": "Python",
+      "status": "practiced",
+      "level": 1,
+      "explanation": "Counter(items).most_common(n) tallies values and returns the most frequent first.",
+      "why": "Fastest way to see what your data looks like before fixing it.",
+      "evidence": [
+        "E-gta-notes"
+      ],
+      "evidenceNote": "",
+      "example": "Counter of chunk section names → 166 chunks with an empty section.",
+      "related": [
+        "c-data-quality"
+      ],
+      "prereqs": [],
+      "gaps": "",
+      "next": "",
+      "authorship": "self-written",
+      "revise": false,
+      "isNew": false
     }
   ],
   "tasks": [
@@ -5429,57 +5690,39 @@
       "notes": ""
     },
     {
-      "id": "t-gta-tests",
-      "title": "Record refresher status: run pytest for Week 1 (21) + Week 2 (19) and log pass counts here",
+      "id": "t-gta-chunkstats",
+      "title": "GTA Week 2 Day 5: implement chunk_stats (delete the placeholder first) and fill its row in cleaning_notes.md",
       "projectId": "gta-cheatsheet",
       "priority": "P1",
       "status": "todo",
       "pipelineId": "pl-gta",
-      "stageId": "clean",
+      "stageId": "quality",
       "blockedBy": "",
       "dependsOn": [],
       "concepts": [
-        "c-pytest"
-      ],
-      "source": "suggested",
-      "evidence": [
-        "E-art-py1",
-        "E-art-py2"
-      ],
-      "due": "",
-      "notes": ""
-    },
-    {
-      "id": "t-gta-handsave",
-      "title": "Save ~20 GTA V pages by hand into the cache and save_chunks the result",
-      "projectId": "gta-cheatsheet",
-      "priority": "P1",
-      "status": "todo",
-      "pipelineId": "pl-gta",
-      "stageId": "store",
-      "blockedBy": "",
-      "dependsOn": [],
-      "concepts": [
-        "c-etl",
-        "c-licensing"
+        "c-data-quality",
+        "c-python-gotchas"
       ],
       "source": "evidence",
       "evidence": [
-        "E-art-py2"
+        "E-gta-claude",
+        "E-gta-tests"
       ],
       "due": "",
       "notes": ""
     },
     {
       "id": "t-gta-golden",
-      "title": "Write golden.json (30 questions) and pass validate_golden",
+      "title": "GTA Day 6: write golden.json (30 questions from the 21 ingested pages) and implement validate_golden",
       "projectId": "gta-cheatsheet",
       "priority": "P1",
       "status": "todo",
       "pipelineId": "pl-gta",
       "stageId": "golden",
       "blockedBy": "",
-      "dependsOn": [],
+      "dependsOn": [
+        "t-gta-chunkstats"
+      ],
       "concepts": [
         "c-golden-set",
         "c-data-validation",
@@ -5487,14 +5730,15 @@
       ],
       "source": "evidence",
       "evidence": [
-        "E-art-py2"
+        "E-art-py2",
+        "E-gta-claude"
       ],
       "due": "",
       "notes": ""
     },
     {
       "id": "t-gta-baseline",
-      "title": "Baseline recall@5 for keyword_search, written down with the date",
+      "title": "GTA Day 7: baseline recall@5 for keyword_search on real data, written down with the date; study the misses",
       "projectId": "gta-cheatsheet",
       "priority": "P1",
       "status": "todo",
@@ -5502,7 +5746,6 @@
       "stageId": "keyword",
       "blockedBy": "",
       "dependsOn": [
-        "t-gta-handsave",
         "t-gta-golden"
       ],
       "concepts": [
@@ -5512,6 +5755,96 @@
       "source": "evidence",
       "evidence": [
         "E-art-py2"
+      ],
+      "due": "",
+      "notes": ""
+    },
+    {
+      "id": "t-gta-headings",
+      "title": "GTA cleaning A: fix heading levels test-first (===/==== headings) — 49% of chunks have bad section names",
+      "projectId": "gta-cheatsheet",
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": "pl-gta",
+      "stageId": "chunk",
+      "blockedBy": "",
+      "dependsOn": [
+        "t-gta-baseline"
+      ],
+      "concepts": [
+        "c-regex",
+        "c-wiki-markup",
+        "c-tdd"
+      ],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-notes"
+      ],
+      "due": "",
+      "notes": "Measure the baseline first so the fix shows up as a recall change."
+    },
+    {
+      "id": "t-gta-skiplist",
+      "title": "GTA cleaning B: skip-list for junk sections (Images, Gallery, Navigation, References…) — −101 chunks",
+      "projectId": "gta-cheatsheet",
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": "pl-gta",
+      "stageId": "chunk",
+      "blockedBy": "",
+      "dependsOn": [
+        "t-gta-headings"
+      ],
+      "concepts": [
+        "c-data-quality"
+      ],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-notes"
+      ],
+      "due": "",
+      "notes": ""
+    },
+    {
+      "id": "t-gta-markup",
+      "title": "GTA cleaning C+D: replace text-bearing templates, then remove links/multi-line templates/markup",
+      "projectId": "gta-cheatsheet",
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": "pl-gta",
+      "stageId": "clean",
+      "blockedBy": "",
+      "dependsOn": [
+        "t-gta-skiplist"
+      ],
+      "concepts": [
+        "c-regex",
+        "c-wiki-markup"
+      ],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-notes"
+      ],
+      "due": "",
+      "notes": ""
+    },
+    {
+      "id": "t-gta-fixdata",
+      "title": "GTA: rename Entity_Xf → Entity_XF, and check whether gta.wiki URLs use /w/ or /wiki/",
+      "projectId": "gta-cheatsheet",
+      "priority": "P2",
+      "status": "todo",
+      "pipelineId": "pl-gta",
+      "stageId": "handsave",
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [
+        "c-metadata"
+      ],
+      "source": "suggested",
+      "evidence": [
+        "E-gta-notes",
+        "E-gta-repo"
       ],
       "due": "",
       "notes": ""
@@ -5790,6 +6123,60 @@
       "source": "evidence",
       "evidence": [
         "E-tavo-8746ce7"
+      ],
+      "due": "2026-10-14",
+      "notes": ""
+    },
+    {
+      "id": "t-done-gta-week1",
+      "title": "GTA Python Refresher Week 1 — 21/21 tests",
+      "projectId": "gta-cheatsheet",
+      "priority": "P1",
+      "status": "done",
+      "pipelineId": "pl-gta",
+      "stageId": "chunk",
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-tests"
+      ],
+      "due": "2026-10-11",
+      "notes": ""
+    },
+    {
+      "id": "t-done-gta-week2",
+      "title": "GTA Week 2 Days 1–4 (fetch_page, list_category, infobox, ingest) — 15/15 tests",
+      "projectId": "gta-cheatsheet",
+      "priority": "P1",
+      "status": "done",
+      "pipelineId": "pl-gta",
+      "stageId": "store",
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-tests"
+      ],
+      "due": "2026-10-14",
+      "notes": ""
+    },
+    {
+      "id": "t-done-gta-realrun",
+      "title": "GTA first real run: 21 hand-saved pages → 791 chunks, cleaning notes written",
+      "projectId": "gta-cheatsheet",
+      "priority": "P1",
+      "status": "done",
+      "pipelineId": "pl-gta",
+      "stageId": "store",
+      "blockedBy": "",
+      "dependsOn": [],
+      "concepts": [],
+      "source": "evidence",
+      "evidence": [
+        "E-gta-notes"
       ],
       "due": "2026-10-14",
       "notes": ""
@@ -6116,6 +6503,17 @@
     {
       "id": "tl-28",
       "date": "2026-10-14",
+      "type": "pipeline",
+      "title": "GTA cheatsheet: first real run — 21 hand-saved pages → 791 chunks; cleaning problems A–H documented",
+      "projectId": "gta-cheatsheet",
+      "detail": "",
+      "evidence": [
+        "E-gta-notes"
+      ]
+    },
+    {
+      "id": "tl-29",
+      "date": "2026-10-14",
       "type": "task",
       "title": "Tavo: committed decision-logging/outcome fixes + skipCleaning",
       "projectId": "tavo",
@@ -6125,13 +6523,35 @@
       ]
     },
     {
-      "id": "tl-29",
+      "id": "tl-30",
       "date": "2026-10-14",
       "type": "verification",
       "title": "Dashboard investigation: all repos, docs and sessions re-read",
       "projectId": null,
       "detail": "",
       "evidence": []
+    },
+    {
+      "id": "tl-31",
+      "date": "2026-10-15",
+      "type": "milestone",
+      "title": "GTA cheatsheet pushed to GitHub (Weeks 1–2 code written unaided)",
+      "projectId": "gta-cheatsheet",
+      "detail": "",
+      "evidence": [
+        "E-gta-repo"
+      ]
+    },
+    {
+      "id": "tl-32",
+      "date": "2026-10-15",
+      "type": "verification",
+      "title": "GTA tests re-run: 36/40 pass (Week 1 21/21, Week 2 15/19)",
+      "projectId": "gta-cheatsheet",
+      "detail": "",
+      "evidence": [
+        "E-gta-tests"
+      ]
     }
   ],
   "evidence": [
@@ -6493,7 +6913,7 @@
       "ref": "https://claude.ai/artifact/H6zLwn8ir2Dg6ZLapaLUM4",
       "date": "2026-10-06",
       "confidence": "verified",
-      "note": "Plan; no code found."
+      "note": "Plan. Ingestion half now implemented in the gta-cheatsheet repo."
     },
     {
       "id": "E-art-py1",
@@ -6502,7 +6922,7 @@
       "ref": "https://claude.ai/artifact/R3oEionPNqMGg2DpDdb2TZ",
       "date": "2026-10-06",
       "confidence": "verified",
-      "note": "Exercise spec; completion not evidenced."
+      "note": "Exercise spec. Completed — 21/21 tests in the gta-cheatsheet repo."
     },
     {
       "id": "E-art-py2",
@@ -6511,7 +6931,7 @@
       "ref": "https://claude.ai/artifact/PkcsKjBuALVarZxMbatcpb",
       "date": "2026-10-11",
       "confidence": "verified",
-      "note": "Exercise spec; completion not evidenced."
+      "note": "Exercise spec. Days 1–4 completed (15/15 tests); Days 5–7 open."
     },
     {
       "id": "E-art-seating",
@@ -6565,6 +6985,42 @@
       "ref": "session_01V9xUxxcPAgWnh73XmQoUkD",
       "date": "2026-09-08",
       "confidence": "reported",
+      "note": ""
+    },
+    {
+      "id": "E-gta-repo",
+      "title": "gta-cheatsheet repository (cheatsheet.py, tests, raw/, cache/, chunks.json)",
+      "type": "repo",
+      "ref": "https://github.com/itayyybh/gta-cheatsheet",
+      "date": "2026-10-15",
+      "confidence": "verified",
+      "note": "Single commit 77d2cbd. cheatsheet.py written by you — CLAUDE.md forbids the assistant from editing it."
+    },
+    {
+      "id": "E-gta-tests",
+      "title": "pytest run of test_cheatsheet.py + test_week2.py: 36 passed, 4 failed",
+      "type": "exercise",
+      "ref": "https://github.com/itayyybh/gta-cheatsheet",
+      "date": "2026-10-15",
+      "confidence": "verified",
+      "note": "Run during this update. Week 1 21/21; Week 2 15/19 (failures = chunk_stats and validate_golden placeholders)."
+    },
+    {
+      "id": "E-gta-notes",
+      "title": "cleaning_notes.md — first real run, 21 pages → 791 chunks, problems A–H",
+      "type": "file",
+      "ref": "https://github.com/itayyybh/gta-cheatsheet/blob/main/cleaning_notes.md",
+      "date": "2026-10-14",
+      "confidence": "verified",
+      "note": "Counts re-checked against chunks.json (791 / 166 empty / 385 \"=\" / 135 > 1000)."
+    },
+    {
+      "id": "E-gta-claude",
+      "title": "gta-cheatsheet CLAUDE.md (rules for the assistant, progress log, recurring slips)",
+      "type": "file",
+      "ref": "https://github.com/itayyybh/gta-cheatsheet/blob/main/CLAUDE.md",
+      "date": "2026-10-15",
+      "confidence": "verified",
       "note": ""
     },
     {
